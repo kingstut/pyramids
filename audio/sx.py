@@ -65,11 +65,11 @@ def distortion(gain=20, threshold=0.5):
         return torch.clamp(waveform, -threshold, threshold)
     return apply_distortion
 
-def chorus(sample_rate, depth=0.5, rate=1.5):
-    def apply_chorus(waveform):
-        chorus = torchaudio.transforms.Chorus(sample_rate, depth, rate)
-        return chorus(waveform)
-    return apply_chorus
+# def chorus(sample_rate, depth=0.5, rate=1.5):
+#     def apply_chorus(waveform):
+#         chorus = torchaudio.transforms.Chorus(sample_rate, depth, rate)
+#         return chorus(waveform)
+#     return apply_chorus
 
 def delay(delay_samples=5000, decay=0.5):
     def apply_delay(waveform):
@@ -83,6 +83,7 @@ def fade_in(sample_rate, duration):
         num_samples = int(duration * sample_rate)
         fade_curve = torch.linspace(0, 1, num_samples).unsqueeze(0)
         waveform[:, :num_samples] *= fade_curve
+        return waveform
     return apply_fade_in
 
 def fade_out(sample_rate, duration):
@@ -90,4 +91,5 @@ def fade_out(sample_rate, duration):
         num_samples = int(duration * sample_rate)
         fade_curve = torch.linspace(1, 0, num_samples).unsqueeze(0)
         waveform[:, -num_samples:] *= fade_curve
+        return waveform
     return apply_fade_out

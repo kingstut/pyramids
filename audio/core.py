@@ -18,7 +18,7 @@ class AudioCore():
         waveform, sr = torchaudio.load(file_path)
 
         # resample to match sample rate
-        self.match_sample_rate(sr, self.sample_rate, waveform)
+        self.match_sample_rate(sr, waveform)
         
         # L and R
         if waveform.shape[0] > 1:
@@ -29,7 +29,7 @@ class AudioCore():
         end_frame = int(end_time * self.sample_rate) if end_time else waveform.shape[1]
 
         # get chunk of audio 
-        audio_chunk = waveform[:, start_frame: end_frame].repeat(loops, dim=1)
+        audio_chunk = waveform[:, start_frame: end_frame].repeat(1, loops)
 
         # apply sx
         if sx:
@@ -43,9 +43,10 @@ class AudioCore():
 
     def layer_audio(self):
         for config in self.chunks:
-            start_frame = int(config['start'] * self.sample_rate)
-            end_frame = start_frame + config['chunk'].shape[1] #int(config['end'] * self.sample_rate)
-            self.track[:, start_frame:end_frame] += config['chunk']
+            start_frame = int(config['position'] * self.sample_rate)
+            end_frame = min(start_frame + config['chunk'].shape[1], self.total_len* self.sample_rate) #int(config['end'] * self.sample_rate)
+            print(start_frame, end_frame, self.total_len, config['chunk'].shape[1])
+            self.track[:, start_frame:end_frame] += config['chunk'][:, :(end_frame-start_frame)]
 
     def render(self):
         # process
